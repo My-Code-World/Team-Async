@@ -1,0 +1,98 @@
+create database stock;
+use stock;
+CREATE TABLE portfolio_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    stock_ticker VARCHAR(10) NOT NULL,
+    quantity INT NOT NULL,
+    avg_buy_price DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    stock_ticker VARCHAR(10) NOT NULL,
+    type ENUM('BUY', 'SELL') NOT NULL,
+    quantity INT NOT NULL,
+    price_per_share DECIMAL(10,2) NOT NULL,
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE stock_prices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    stock_ticker VARCHAR(10) NOT NULL,
+    price_date DATE NOT NULL,
+    open_price DECIMAL(10,2),
+    high_price DECIMAL(10,2),
+    low_price DECIMAL(10,2),
+    close_price DECIMAL(10,2),
+    volume BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE stocks (
+    stock_ticker VARCHAR(10) PRIMARY KEY,
+    company_name VARCHAR(100),
+    sector VARCHAR(50),
+    industry VARCHAR(50)
+);
+INSERT INTO stock_prices (stock_ticker, open_price, high_price, low_price, close_price, volume, price_date)
+VALUES
+  ('TSLA', 269.19, 271.20, 264.70, 268.65, 90362345, '2025-07-29'),
+  ('AAPL', 148.30, 150.10, 147.60, 149.90, 75410321, '2025-07-29'),
+  ('GOOGL', 2771.00, 2784.50, 2745.00, 2770.60, 4023492, '2025-07-29'),
+  ('MSFT', 310.25, 314.00, 308.50, 312.70, 38200560, '2025-07-29'),
+  ('AMZN', 123.45, 125.00, 122.10, 124.30, 61834401, '2025-07-29'),
+  ('META', 328.50, 330.10, 325.60, 327.75, 25411345, '2025-07-29'),
+  ('NFLX', 418.00, 423.25, 415.10, 419.80, 17893312, '2025-07-29'),
+  ('NVDA', 895.10, 905.00, 887.50, 900.20, 31245671, '2025-07-29'),
+  ('DIS', 91.30, 92.15, 90.20, 91.75, 18762345, '2025-07-29'),
+  ('BABA', 87.25, 88.70, 86.40, 87.95, 24400122, '2025-07-29');
+  INSERT INTO stocks (stock_ticker, company_name, sector, industry) VALUES
+('AAPL', 'Apple Inc.', 'Technology', 'Consumer Electronics'),
+('MSFT', 'Microsoft Corporation', 'Technology', 'Software—Infrastructure'),
+('GOOGL', 'Alphabet Inc.', 'Communication Services', 'Internet Content & Information'),
+('AMZN', 'Amazon.com Inc.', 'Consumer Cyclical', 'Internet Retail'),
+('TSLA', 'Tesla Inc.', 'Consumer Cyclical', 'Auto Manufacturers'),
+('META', 'Meta Platforms Inc.', 'Communication Services', 'Internet Content & Information'),
+('NFLX', 'Netflix Inc.', 'Communication Services', 'Entertainment'),
+('NVDA', 'NVIDIA Corporation', 'Technology', 'Semiconductors'),
+('DIS', 'The Walt Disney Company', 'Communication Services', 'Entertainment'),
+('BABA', 'Alibaba Group Holding Limited', 'Consumer Cyclical', 'Internet Retail'),
+('JPM', 'JPMorgan Chase & Co.', 'Financial Services', 'Banks—Diversified'),
+('WMT', 'Walmart Inc.', 'Consumer Defensive', 'Discount Stores'),
+('V', 'Visa Inc.', 'Financial Services', 'Credit Services'),
+('KO', 'The Coca-Cola Company', 'Consumer Defensive', 'Beverages—Non-Alcoholic'),
+('PFE', 'Pfizer Inc.', 'Healthcare', 'Drug Manufacturers—General');
+-- INSERT INTO stocks (stock_ticker, company_name, sector, industry) VALUES
+('RELIANCE', 'Reliance Industries Ltd.', 'Energy', 'Oil & Gas'),
+('HDFCBANK', 'HDFC Bank Ltd.', 'Financial Services', 'Banks'),
+('BHARTIARTL', 'Bharti Airtel Ltd.', 'Telecom', 'Telecommunication Services'),
+('TCS', 'Tata Consultancy Services Ltd.', 'IT', 'IT Services'),
+('ICICIBANK', 'ICICI Bank Ltd.', 'Financial Services', 'Banks'),
+('SBIN', 'State Bank of India', 'Financial Services', 'Banks'),
+('INFY', 'Infosys Ltd.', 'IT', 'IT Services'),
+('HINDUNILVR', 'Hindustan Unilever Ltd.', 'Consumer Defensive', 'FMCG'),
+('BAJFINANCE', 'Bajaj Finance Ltd.', 'Financial Services', 'Finance'),
+('ITC', 'ITC Ltd.', 'Consumer Defensive', 'FMCG'),
+('LT', 'Larsen & Toubro Ltd.', 'Industrials', 'Construction'),
+('SUNPHARMA', 'Sun Pharmaceutical Industries Ltd.', 'Healthcare', 'Pharmaceuticals'),
+('HCLTECH', 'HCL Technologies Ltd.', 'IT', 'IT Services'),
+('AXISBANK', 'Axis Bank Ltd.', 'Financial Services', 'Banks'),
+('MARUTI', 'Maruti Suzuki India Ltd.', 'Consumer Cyclical', 'Auto Manufacturers'),
+('TATAMOTORS', 'Tata Motors Ltd.', 'Consumer Cyclical', 'Auto Manufacturers'),
+('TATASTEEL', 'Tata Steel Ltd.', 'Materials', 'Metals'),
+('M&M', 'Mahindra & Mahindra Ltd.', 'Consumer Cyclical', 'Auto Manufacturers'),
+('ADANIPORTS', 'Adani Ports & SEZ Ltd.', 'Industrials', 'Ports & Logistics'),
+('BEL', 'Bharat Electronics Ltd.', 'Aerospace & Defence', 'Defence'),
+('TRENT', 'Trent Ltd.', 'Consumer Cyclical', 'Retailing'),
+('BAJAJFINSV', 'Bajaj Finserv Ltd.', 'Financial Services', 'Finance'),
+('ULTRACEMCO', 'UltraTech Cement Ltd.', 'Materials', 'Cement'),
+('NTPC', 'NTPC Ltd.', 'Utilities', 'Power Generation'),
+('JSWSTEEL', 'JSW Steel Ltd.', 'Materials', 'Metals'),
+('NESTLEIND', 'Nestle India Ltd.', 'Consumer Defensive', 'FMCG'),
+('POWERGRID', 'Power Grid Corporation of India Ltd.', 'Utilities', 'Power Transmission'),
+('TITAN', 'Titan Company Ltd.', 'Consumer Cyclical', 'Jewellery & Accessories'),
+('WIPRO', 'Wipro Ltd.', 'IT', 'IT Services'),
+('COALINDIA', 'Coal India Ltd.', 'Energy', 'Mining'),
+('GRASIM', 'Grasim Industries Ltd.', 'Materials', 'Textiles & Chemicals'),
+('HDFCLIFE', 'HDFC Life Insurance Company Ltd.', 'Financial Services', 'Insurance');
+
+
+
