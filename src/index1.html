@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stock Market Portfolio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f8fc;
+      margin: 0;
+      padding: 0;
+    }
+    .ticker-header {
+      background: #102542;
+      color: #fff;
+      overflow: hidden;
+      height: 48px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .ticker-wrap { width: 100%; overflow: hidden; position: relative; height: 48px; }
+    .ticker {
+      display: inline-block;
+      white-space: nowrap;
+      will-change: transform;
+    }
+    .ticker span { margin-right: 48px; font-size: 1.1em; line-height: 48px; }
+    .container {
+      display: flex;
+      justify-content: flex-start;
+      margin: 24px auto;
+      max-width: 1120px;
+      min-height: 70vh;
+    }
+    main {
+      flex: 1 1 0%;
+      padding: 32px 36px 32px 16px;
+      background: #fff;
+      border-radius: 7px;
+      margin-right: 22px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+    .brands-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin-top: 28px;
+    }
+    .brand-box {
+      background: #e5ecfa;
+      border-radius: 9px;
+      padding: 28px 16px 18px 16px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(44,83,199,0.05);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      position: relative;
+    }
+    .brand-box:hover {
+      transform: translateY(-7px) scale(1.03);
+      box-shadow: 0 12px 28px rgba(44,83,199,0.18);
+    }
+    .brand-logo {
+      width: 58px;
+      border-radius: 9px;
+      background: #fff;
+      margin-bottom: 14px;
+      padding: 7px;
+      box-shadow: 0 2px 8px rgba(28,53,93,0.08);
+    }
+    .brand-name {
+      color: #194e8a;
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-bottom: 2px;
+    }
+    .brand-ticker {
+      color: #576377;
+      font-size: 0.97em;
+      margin-bottom: 1em;
+    }
+    .profile-sidebar {
+      min-width: 260px;
+      max-width: 340px;
+      background: #fafbfe;
+      border-radius: 7px;
+      padding: 32px 24px;
+      box-shadow: 0 4px 14px rgba(28,53,93,0.09);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: fit-content;
+    }
+    .profile-card {
+      text-align: center;
+    }
+    .profile-card img {
+      border-radius: 50%;
+      width: 98px;
+      margin-bottom: 14px;
+      border: 3px solid #cbe7fa;
+    }
+    .profile-card h2 {
+      margin: 8px 0 4px 0;
+      color: #194e8a;
+    }
+    .profile-card p {
+      margin: 4px 0;
+      color: #576377;
+      font-size: 0.99em;
+    }
+
+    /* Full-Page Modal */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(48,55,70,0.38);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-bg.active { display: flex; }
+    .brand-modal {
+      background: #fff;
+      border-radius: 16px;
+      width: 96vw;
+      max-width: 960px;
+      height: 92vh;
+      max-height: 600px;
+      padding: 0;
+      box-shadow: 0 10px 38px rgba(44,83,199,0.16);
+      display: flex;
+      flex-direction: column;
+      animation: modal-in 0.19s;
+      overflow: hidden;
+      position: relative;
+    }
+    @keyframes modal-in {
+      0%{transform: scale(.88); opacity:.2;}
+      100%{transform: scale(1); opacity:1;}
+    }
+    .modal-content-scroll {
+      overflow-y: auto;
+      padding: 40px 36px 34px;
+      flex: 1 1 auto;
+    }
+    .modal-brand-logo {
+      width: 68px; border-radius: 12px; margin-bottom: 24px;
+      background: #e5ecfa; padding: 7px;
+    }
+    .modal-brand-name {
+      color: #194e8a; font-size: 1.4em; font-weight: bold; margin: 5px 0 2px;
+    }
+    .modal-brand-ticker { color: #7a8598; font-size: 1.07em; margin-bottom: 12px;}
+    .market-table {
+      width: 360px;
+      margin: 24px auto 16px;
+      border-collapse: collapse;
+      background: #f6f8fc;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(44,83,199,0.07);
+    }
+    .market-table th,.market-table td {
+      padding: 10px 18px;
+      font-size: 1.06em;
+      color: #255;
+    }
+    .market-table tr:nth-child(even){
+      background: #e5ecfa;
+    }
+    .market-table th {
+      text-align: left;
+      color: #194e8a;
+      font-weight: bold;
+      background: #daeafb;
+    }
+    .modal-desc{
+      color:#657ba5;
+      font-size:1.07em;
+      margin:22px auto 18px;
+      text-align:center;
+      max-width:540px;
+    }
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      align-items:center;
+      gap: 16px; margin: 28px 0 10px 0;
+    }
+    .modal-buttons button {
+      background: #194e8a;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 11px 30px;
+      cursor: pointer;
+      font-size: 1.12em;
+      font-weight: bold;
+      transition: background 0.13s;
+    }
+    .modal-buttons button:hover { background: #12517b; }
+    .close-modal, .close-buy-sell {
+      position: absolute;
+      right: 16px; top: 16px;
+      background: none;
+      color: #576377;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      z-index: 15;
+    }
+    /* Chart Area in Modal */
+    .modal-chart-area {
+      margin: 34px auto 0 auto;
+      border-radius: 9px;
+      padding: 16px 0 6px 0;
+      background: #f6f8fc;
+      width: 340px;
+      display:none;
+    }
+    .modal-chart-area.show {display:block;}
+    .modal-chart-label {
+      color: #576377;
+      font-size: 1.01em;
+      margin-bottom: 7px;
+    }
+
+    /* Buy/Sell Popup */
+    .buy-sell-modal-bg {
+      display:none;
+      position:fixed;
+      z-index:2200;
+      left:0;top:0;width:100vw;height:100vh;
+      background:rgba(44,52,69,0.33);
+      align-items:center;
+      justify-content:center;
+    }
+    .buy-sell-modal-bg.active { display: flex; }
+    .buy-sell-modal {
+      background:#fff;
+      border-radius:13px;
+      width:340px;
+      max-width:94vw;
+      padding:30px 28px;
+      box-shadow:0 6px 30px rgba(44,83,199,0.19);
+      text-align:center;
+      animation:modal-in 0.21s;
+      position:relative;
+    }
+    .buy-sell-toggle-btns{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      margin:14px 0 19px;
+    }
+    .buy-sell-toggle-btns button{
+      background:#e5ecfa;
+      color:#194e8a;
+      border:none;
+      border-radius:6px;
+      padding:8px 24px;
+      font-size:1.1em;
+      font-weight:bold;
+      cursor:pointer;
+      transition:background 0.12s;
+    }
+    .buy-sell-toggle-btns button.active{
+      background:#194e8a;
+      color:#fff;
+    }
+    .order-form input[type="number"]{
+      padding:7px 12px;
+      font-size:1em;
+      border-radius:4px;
+      border: 1px solid #aac3e9;
+      margin:0 6px 14px 0;
+      width:85%;
+    }
+    .order-form label{
+      display:block;
+      color:#5a5c7b;
+      margin-bottom:5px;
+      font-weight:500;
+      text-align:left;
+      margin-left:12px;
+    }
+    .order-form button[type="submit"]{
+      background:#18cd6e;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      font-weight:bold;
+      padding:9px 20px;
+      margin-top:8px;
+      font-size:1.09em;
+      cursor:pointer;
+    }
+    .order-form button[type="submit"]:hover{background:#15ad5e;}
+    .order-success{
+      color:#18cd6e;
+      margin-top:16px;
+      font-size:1.1em;
+      font-weight:600;
+      display:none;
+    }
+
+    @media (max-width:850px){
+      .brand-modal{width:99vw;max-width:99vw;min-width:0;padding:0;}
+      .profile-sidebar{display:none;}
+    }
+    @media (max-width:640px){
+      .modal-content-scroll{padding:28px 8vw 16px;}
+      .brand-modal{height:100vh;}
+      .market-table{width:99%;}
+      .modal-chart-area{width:99%;}
+      .brands-grid{gap:12px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Stock ticker scrolling header -->
+  <header class="ticker-header">
+    <div class="ticker-wrap">
+      <div class="ticker" id="ticker"></div>
+    </div>
+  </header>
+
+  <div class="container">
+    <main>
+      <h1>Market Brands</h1>
+      <div class="brands-grid" id="brandsGrid"></div>
+    </main>
+    <!-- User profile sidebar (on the right) -->
+    <aside class="profile-sidebar">
+      <div class="profile-card">
+        <img src="guy.jpg" alt="User Avatar">
+        <h2>Jane Doe</h2>
+        <p>Email: jane@example.com</p>
+        <p>Member since: 2023</p>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Brand Modal Popup -->
+  <div class="modal-bg" id="modalBg">
+    <div class="brand-modal">
+      <button class="close-modal" id="closeModalBtn">&times;</button>
+      <div class="modal-content-scroll" id="modalContentScroll">
+        <img class="modal-brand-logo" id="modalBrandLogo" src="" alt="">
+        <div class="modal-brand-name" id="modalBrandName"></div>
+        <div class="modal-brand-ticker" id="modalBrandTicker"></div>
+        <table class="market-table" id="marketTable">
+          <tbody>
+            <tr><th>Open</th><td id="modalOpen">$0.00</td></tr>
+            <tr><th>Close</th><td id="modalClose">$0.00</td></tr>
+            <tr><th>Low</th><td id="modalLow">$0.00</td></tr>
+            <tr><th>High</th><td id="modalHigh">$0.00</td></tr>
+            <tr><th>Volume</th><td id="modalVolume">0</td></tr>
+          </tbody>
+        </table>
+        <div class="modal-desc" id="modalDesc"></div>
+        <!-- Buttons appear at the bottom, after scrolling -->
+        <div class="modal-buttons" id="modalBtns">
+          <button id="buyBtn">Buy</button>
+          <button id="sellBtn">Sell</button>
+          <button id="chartBtn">Show Chart</button>
+        </div>
+        <div class="modal-chart-area" id="modalChartArea">
+          <div class="modal-chart-label" id="modalChartLabel"></div>
+          <canvas id="modalChartCanvas" width="320" height="150"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buy/Sell Popup -->
+  <div class="buy-sell-modal-bg" id="buySellModalBg">
+    <div class="buy-sell-modal">
+      <button class="close-buy-sell" id="closeBuySellBtn">&times;</button>
+      <div class="buy-sell-toggle-btns">
+        <button id="buyTabBtn" class="active">Buy</button>
+        <button id="sellTabBtn">Sell</button>
+      </div>
+      <form class="order-form" id="orderForm">
+        <label for="quantityInput">Quantity</label>
+        <input type="number" id="quantityInput" min="1" value="1" required>
+        <label for="priceInput">Price per Stock ($)</label>
+        <input type="number" id="priceInput" min="1" step="0.01" value="" required>
+        <button type="submit" id="orderSubmitBtn">Place Buy Order</button>
+        <div class="order-success" id="orderSuccessMsg">Order placed successfully!</div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // -------- Ticker Logic ---------
+    const stocks = [
+      { symbol: "AAPL", price: 215.32, change: 1.61 },
+      { symbol: "GOOG", price: 2768.89, change: -7.34 },
+      { symbol: "TSLA", price: 680.14, change: 12.91 },
+      { symbol: "AMZN", price: 3450.70, change: -9.21 },
+      { symbol: "MSFT", price: 420.23, change: 3.87 },
+      { symbol: "NVDA", price: 870.12, change: 4.41 },
+      { symbol: "META", price: 299.51, change: 2.22 },
+      { symbol: "NFLX", price: 540.18, change: -8.09 },
+      { symbol: "AMD", price: 161.10, change: 0.83 }
+    ];
+    function getStockSpan(stock) {
+      const arrow = stock.change >= 0 ? "▲" : "▼";
+      const color = stock.change >= 0 ? "#18cd6e" : "#dc2e44";
+      return `<span style="color:${color}">${stock.symbol}: ${stock.price.toFixed(2)} ${arrow}</span>`;
+    }
+    function fillTicker() {
+      const ticker = document.getElementById('ticker');
+      let html = "";
+      for (let i = 0; i < 3; i++) {
+        stocks.forEach(stock => html += getStockSpan(stock));
+      }
+      ticker.innerHTML = html;
+      startTickerScroll();
+    }
+    function startTickerScroll() {
+      const ticker = document.getElementById('ticker');
+      let pos = 0;
+      const resetAt = ticker.scrollWidth / 3;
+      function scroll() {
+        pos -= 1;
+        if (-pos >= resetAt) pos = 0;
+        ticker.style.transform = `translateX(${pos}px)`;
+        requestAnimationFrame(scroll);
+      }
+      scroll();
+    }
+
+    // -------- Brand Boxes ---------
+    const brands = [
+      {
+        name: "Apple Inc.",
+        ticker: "AAPL",
+        logo: "https://logo.clearbit.com/apple.com",
+        desc: "Apple designs, manufactures and sells consumer electronics.",
+        chart: [215, 220, 218, 223, 226, 230, 228],
+        base: 228
+      },
+      {
+        name: "Tesla, Inc.",
+        ticker: "TSLA",
+        logo: "https://logo.clearbit.com/tesla.com",
+        desc: "Tesla specializes in electric vehicles and clean energy.",
+        chart: [670, 680, 700, 695, 705, 725, 730],
+        base: 730
+      },
+      {
+        name: "NVIDIA",
+        ticker: "NVDA",
+        logo: "https://logo.clearbit.com/nvidia.com",
+        desc: "NVIDIA is a leader in GPUs and AI hardware.",
+        chart: [850, 860, 870, 865, 878, 890, 895],
+        base: 895
+      },
+      {
+        name: "Amazon.com",
+        ticker: "AMZN",
+        logo: "https://logo.clearbit.com/amazon.com",
+        desc: "Amazon is a global e-commerce and cloud giant.",
+        chart: [3455, 3440, 3462, 3475, 3481, 3495, 3503],
+        base: 3503
+      },
+      {
+        name: "Google",
+        ticker: "GOOG",
+        logo: "https://logo.clearbit.com/google.com",
+        desc: "Google is a leader in search, ads, and cloud technology.",
+        chart: [2765, 2768, 2773, 2778, 2783, 2789, 2794],
+        base: 2794
+      }
+    ];
+    function fillBrandGrid() {
+      const grid = document.getElementById('brandsGrid');
+      brands.forEach((brand, idx) => {
+        const div = document.createElement('div');
+        div.classList.add('brand-box');
+        div.innerHTML = `
+          <img class="brand-logo" src="${brand.logo}" alt="${brand.name}">
+          <div class="brand-name">${brand.name}</div>
+          <div class="brand-ticker">${brand.ticker}</div>
+        `;
+        div.addEventListener('click', () => openModal(idx));
+        grid.appendChild(div);
+      });
+    }
+
+    // -------- Modal Logic ---------
+    let currentBrandIdx = null;
+    let chartInstance = null;
+    function getRandomStockData(base) {
+      // Sensible random: open, close (near base), high/low, volume
+      let open = (base + (Math.random() - 0.5) * 10).toFixed(2);
+      let close = (base + (Math.random() - 0.5) * 10).toFixed(2);
+      let low = Math.min(open, close) - Math.random() * 5;
+      let high = Math.max(open, close) + Math.random() * 5;
+      let volume = Math.floor(2000000 + Math.random() * 2000000); // in millions
+      return {
+        open: parseFloat(open).toFixed(2),
+        close: parseFloat(close).toFixed(2),
+        low: low.toFixed(2),
+        high: high.toFixed(2),
+        volume: volume.toLocaleString()
+      }
+    }
+    let currentStockData = {};
+    function openModal(idx) {
+      currentBrandIdx = idx;
+      const modalBg = document.getElementById('modalBg');
+      const brand = brands[idx];
+      document.getElementById('modalBrandLogo').src = brand.logo;
+      document.getElementById('modalBrandLogo').alt = brand.name;
+      document.getElementById('modalBrandName').textContent = brand.name;
+      document.getElementById('modalBrandTicker').textContent = brand.ticker;
+      document.getElementById('modalDesc').textContent = brand.desc;
+      // Random but sensible stock market stats
+      currentStockData = getRandomStockData(brand.base);
+      document.getElementById('modalOpen').textContent = "$" + currentStockData.open;
+      document.getElementById('modalClose').textContent = "$" + currentStockData.close;
+      document.getElementById('modalLow').textContent = "$" + currentStockData.low;
+      document.getElementById('modalHigh').textContent = "$" + currentStockData.high;
+      document.getElementById('modalVolume').textContent = currentStockData.volume;
+      document.getElementById('modalChartArea').classList.remove('show');
+      modalBg.classList.add('active');
+      // Set chart label empty
+      document.getElementById('modalChartLabel').textContent = '';
+      // Default for buy/sell form
+      document.getElementById('priceInput').value = currentStockData.close;
+      // Scroll modal to top
+      document.getElementById('modalContentScroll').scrollTop = 0;
+    }
+    function closeModal(){
+      document.getElementById('modalBg').classList.remove('active');
+      if(chartInstance) { chartInstance.destroy(); chartInstance=null; }
+    }
+    function showModalChart(){
+      const brand = brands[currentBrandIdx];
+      document.getElementById('modalChartArea').classList.add('show');
+      document.getElementById('modalChartLabel').textContent = brand.ticker+" Trend";
+      const ctx = document.getElementById('modalChartCanvas').getContext('2d');
+      if(chartInstance) { chartInstance.destroy(); chartInstance=null; }
+      chartInstance = new Chart(ctx, {
+        type:'line',
+        data:{
+          labels:["Mon","Tue","Wed","Thu","Fri","Mon","Tue"],
+          datasets:[{
+            label:brand.ticker+" ($)",
+            data: brand.chart,
+            borderColor:'#2c53c7',
+            backgroundColor:'rgba(44, 83, 199, 0.10)',
+            fill: true,
+            pointBackgroundColor:'#18cd6e',
+            tension:0.28,
+            pointRadius: 3.8
+          }]
+        },
+        options:{ responsive:false, scales:{
+            x:{ticks:{color:'#657ba5',font:{weight:'bold'}}},
+            y:{ticks:{color:'#657ba5',font:{weight:'bold'}}}
+          }, plugins:{
+            legend:{labels:{color:'#2c3e50',font:{size:15}}}
+          }
+        }
+      })
+    }
+
+    // -------- Buy/Sell Modal Logic ---------
+    let buyMode = true;
+    function openBuySellModal(mode){
+      buyMode = mode==="buy";
+      const buySellModalBg = document.getElementById('buySellModalBg');
+      buySellModalBg.classList.add('active');
+      document.getElementById('buyTabBtn').classList.toggle('active', buyMode);
+      document.getElementById('sellTabBtn').classList.toggle('active', !buyMode);
+      let action = buyMode ? "Buy" : "Sell";
+      document.getElementById('orderSubmitBtn').textContent = "Place "+action+" Order";
+      document.getElementById('orderSuccessMsg').style.display = "none";
+      // Quantity default 1, price to current stock's close
+      document.getElementById('quantityInput').value = 1;
+      document.getElementById('priceInput').value = currentStockData.close;
+    }
+    function closeBuySellModal(){
+      document.getElementById('buySellModalBg').classList.remove('active');
+    }
+    function switchBuySellMode(mode){
+      openBuySellModal(mode);
+    }
+
+    // -------- Event Handlers ---------
+    document.addEventListener('DOMContentLoaded', function(){
+      fillTicker();
+      fillBrandGrid();
+      // Modal events
+      document.getElementById('closeModalBtn').onclick = closeModal;
+      document.getElementById('modalBg').onclick = function(e){
+        if(e.target===this){closeModal();}
+      };
+      // Buttons
+      document.getElementById('buyBtn').onclick = ()=>openBuySellModal("buy");
+      document.getElementById('sellBtn').onclick = ()=>openBuySellModal("sell");
+      document.getElementById('chartBtn').onclick = showModalChart;
+
+      // Buy/sell modal
+      document.getElementById('closeBuySellBtn').onclick = closeBuySellModal;
+      document.getElementById('buySellModalBg').onclick = function(e){
+        if(e.target===this){closeBuySellModal();}
+      };
+      document.getElementById('buyTabBtn').onclick = ()=>switchBuySellMode("buy");
+      document.getElementById('sellTabBtn').onclick = ()=>switchBuySellMode("sell");
+      document.getElementById('orderForm').onsubmit = function(e){
+        e.preventDefault();
+        // Just demo feedback (normally here you'd call API)
+        document.getElementById('orderSuccessMsg').textContent =
+          (buyMode?"Buy":"Sell")+" order of "+document.getElementById('quantityInput').value+
+          " @ $"+document.getElementById('priceInput').value+" placed!";
+        document.getElementById('orderSuccessMsg').style.display = "block";
+        setTimeout(closeBuySellModal, 1300);
+      }
+    });
+  </script>
+</body>
+</html>
