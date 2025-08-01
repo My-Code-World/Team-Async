@@ -1,20 +1,20 @@
 create database stock;
 use stock;
-CREATE TABLE portfolio_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    stock_ticker VARCHAR(10) NOT NULL,
-    quantity INT NOT NULL,
-    avg_buy_price DECIMAL(10,2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE transactions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    stock_ticker VARCHAR(10) NOT NULL,
-    type ENUM('BUY', 'SELL') NOT NULL,
-    quantity INT NOT NULL,
-    price_per_share DECIMAL(10,2) NOT NULL,
-    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- CREATE TABLE portfolio_items (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+    -- stock_ticker VARCHAR(10) NOT NULL,
+--     quantity INT NOT NULL,
+--     avg_buy_price DECIMAL(10,2) NOT NULL,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+-- CREATE TABLE transactions (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     stock_ticker VARCHAR(10) NOT NULL,
+--     type ENUM('BUY', 'SELL') NOT NULL,
+--     quantity INT NOT NULL,
+--     price_per_share DECIMAL(10,2) NOT NULL,
+--     transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 CREATE TABLE stock_prices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     stock_ticker VARCHAR(10) NOT NULL,
@@ -169,4 +169,39 @@ CREATE TABLE user (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
+CREATE TABLE full_stock_data AS
+SELECT 
+  s.*,
+  sp.*
+FROM stocks s
+LEFT JOIN stock_prices sp
+  ON s.stock_ticker = sp.stock_ticker
+  AND sp.price_date = (
+    SELECT MAX(sp2.price_date)
+    FROM stock_prices sp2
+    WHERE sp2.stock_ticker = s.stock_ticker
+  );
+CREATE TABLE full_stock_data AS
+SELECT 
+  s.stock_ticker AS s_ticker,
+  s.company_name,
+  s.sector,
+  s.industry,
+  s.current_price,
+  sp.id AS price_id,
+  sp.price_date,
+  sp.open_price,
+  sp.high_price,
+  sp.low_price,
+  sp.close_price,
+  sp.current_prices,
+  sp.volume,
+  sp.created_at
+FROM stocks s
+LEFT JOIN stock_prices sp
+  ON s.stock_ticker = sp.stock_ticker
+  AND sp.price_date = (
+    SELECT MAX(sp2.price_date)
+    FROM stock_prices sp2
+    WHERE sp2.stock_ticker = s.stock_ticker
+  );
